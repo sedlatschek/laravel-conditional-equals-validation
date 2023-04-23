@@ -30,9 +30,5 @@ abstract class Condition
         return $this->parameters;
     }
 
-    /**
-     * Define under which condition a value other than the `$mustBe` value
-     * is allowed.
-     */
-    abstract public function allowsDifferentValue(Request $request): bool;
+    abstract public function validate(Request $request): bool;
 }

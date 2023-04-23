@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
+use PhpParser\Node\Expr\BinaryOp\NotEqual;
 use Sedlatschek\ConditionalEqualsValidation\Rules\Equals;
+use Sedlatschek\ConditionalEqualsValidation\Rules\NotEquals;
 
 it('handles null the right way', function (array $rules, array $data, bool $expected) {
     $this->post('/test', $data);
@@ -42,6 +44,28 @@ it('handles null the right way', function (array $rules, array $data, bool $expe
         ],
         false,
     ],
+    [
+        [
+            'a' => (new NotEquals(1))->if('b', null),
+            'b' => 'nullable',
+        ],
+        [
+            'a' => 2,
+            'b' => null,
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new NotEquals(1))->if('b', 1),
+            'b' => 'nullable',
+        ],
+        [
+            'a' => 1,
+            'b' => null,
+        ],
+        true,
+    ],
     // -> if not
     [
         [
@@ -79,6 +103,28 @@ it('handles null the right way', function (array $rules, array $data, bool $expe
     [
         [
             'a' => (new Equals(1))->ifNot('b', null),
+            'b' => 'nullable',
+        ],
+        [
+            'a' => 2,
+            'b' => null,
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new NotEquals(1))->ifNot('b', 1),
+            'b' => 'nullable',
+        ],
+        [
+            'a' => 1,
+            'b' => null,
+        ],
+        false,
+    ],
+    [
+        [
+            'a' => (new NotEquals(1))->ifNot('b', 1),
             'b' => 'nullable',
         ],
         [
@@ -127,6 +173,32 @@ it('handles null the right way', function (array $rules, array $data, bool $expe
         ],
         false,
     ],
+    [
+        [
+            'a' => (new NotEquals(true))->ifAllOf(['b', 'c'], true),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => false,
+            'b' => null,
+            'c' => null,
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new NotEquals(true))->ifAllOf(['b', 'c'], null),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => true,
+            'b' => null,
+            'c' => null,
+        ],
+        false,
+    ],
     // -> if any of
     [
         [
@@ -151,6 +223,19 @@ it('handles null the right way', function (array $rules, array $data, bool $expe
             'a' => false,
             'b' => null,
             'c' => null,
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new NotEquals(true))->ifAnyOf(['b', 'c'], true),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => false,
+            'b' => null,
+            'c' => true,
         ],
         true,
     ],
@@ -206,5 +291,18 @@ it('handles null the right way', function (array $rules, array $data, bool $expe
             'c' => null,
         ],
         true,
+    ],
+    [
+        [
+            'a' => (new NotEquals(true))->ifNoneOf(['b', 'c'], 1),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => true,
+            'b' => 2,
+            'c' => null,
+        ],
+        false,
     ],
 ]);

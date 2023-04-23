@@ -3,14 +3,86 @@
 use Illuminate\Support\Facades\Validator;
 use Sedlatschek\ConditionalEqualsValidation\Rules\Equals;
 
-it('works with only all conditions', function (array $rules, array $data, bool $expected) {
+it('validates "equals" with only "none" conditions', function (array $rules, array $data, bool $expected) {
     $this->post('/test', $data);
     $validator = Validator::make($data, $rules);
     expect($validator->passes())->toBe($expected);
 })->with([
     [
         [
-            'a' => (new Equals(true))->ifAllOf(['b', 'c'], true),
+            'a' => (new Equals(1))->ifNot('b', 1),
+            'b' => 'nullable',
+        ],
+        [
+            'a' => 1,
+            'b' => 3,
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new Equals(1))->ifNot('b', 1),
+            'b' => 'nullable',
+        ],
+        [
+            'a' => 4,
+            'b' => 1,
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new Equals(1))->ifNot('b', 1),
+            'b' => 'nullable',
+        ],
+        [
+            'a' => 5,
+            'b' => 2,
+        ],
+        false,
+    ],
+    [
+        [
+            'a' => (new Equals(true))->ifNoneOf(['b', 'c'], true),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => true,
+            'b' => false,
+            'c' => false,
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new Equals(true))->ifNoneOf(['b', 'c'], true),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => false,
+            'b' => false,
+            'c' => false,
+        ],
+        false,
+    ],
+    [
+        [
+            'a' => (new Equals(true))->ifNoneOf(['b', 'c'], true),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => true,
+            'b' => false,
+            'c' => false,
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new Equals(true))->ifNoneOf(['b', 'c'], true),
             'b' => 'nullable',
             'c' => 'nullable',
         ],
@@ -23,7 +95,7 @@ it('works with only all conditions', function (array $rules, array $data, bool $
     ],
     [
         [
-            'a' => (new Equals(true))->ifAllOf(['b', 'c'], true),
+            'a' => (new Equals(true))->ifNoneOf(['b', 'c'], true),
             'b' => 'nullable',
             'c' => 'nullable',
         ],
@@ -36,106 +108,67 @@ it('works with only all conditions', function (array $rules, array $data, bool $
     ],
     [
         [
-            'a' => (new Equals(true))->ifAllOf(['b', 'c'], true),
+            'a' => (new Equals(1))->ifNoneOf(['b', 'c'], 2),
             'b' => 'nullable',
             'c' => 'nullable',
         ],
         [
-            'a' => false,
-            'b' => true,
-            'c' => true,
-        ],
-        false,
-    ],
-    [
-        [
-            'a' => (new Equals(true))->ifAllOf(['b', 'c'], true),
-            'b' => 'nullable',
-            'c' => 'nullable',
-        ],
-        [
-            'a' => true,
-            'b' => true,
-            'c' => true,
-        ],
-        true,
-    ],
-    [
-        [
-            'a' => (new Equals(true))->ifAllOf(['b', 'c'], 'X'),
-            'b' => 'nullable',
-            'c' => 'nullable',
-        ],
-        [
-            'a' => true,
-            'b' => 'X',
-            'c' => 'Y',
-        ],
-        true,
-    ],
-    [
-        [
-            'a' => (new Equals(true))->ifAllOf(['b', 'c'], 'X'),
-            'b' => 'nullable',
-            'c' => 'nullable',
-        ],
-        [
-            'a' => false,
-            'b' => 'X',
-            'c' => 'Y',
-        ],
-        true,
-    ],
-    [
-        [
-            'a' => (new Equals(true))->ifAllOf(['b', 'c'], 'X'),
-            'b' => 'nullable',
-            'c' => 'nullable',
-        ],
-        [
-            'a' => false,
-            'b' => 'X',
-            'c' => 'X',
-        ],
-        false,
-    ],
-    [
-        [
-            'a' => (new Equals(true))->ifAllOf(['b', 'c'], 'X'),
-            'b' => 'nullable',
-            'c' => 'nullable',
-        ],
-        [
-            'a' => true,
-            'b' => 'X',
+            'a' => 1,
+            'b' => 2,
             'c' => 'X',
         ],
         true,
     ],
     [
         [
-            'a' => (new Equals(true))->ifAllOf(['b', 'c'], 'X'),
-            'b' => 'nullable',
-            'c' => 'nullable',
-        ],
-        [
-            'a' => 'X',
-            'b' => 'X',
-            'c' => 'X',
-        ],
-        false,
-    ],
-    [
-        [
-            'a' => (new Equals(1))->ifAllOf(['b', 'c'], 'X'),
+            'a' => (new Equals(1))->ifNoneOf(['b', 'c'], 2),
             'b' => 'nullable',
             'c' => 'nullable',
         ],
         [
             'a' => '1',
+            'b' => 2,
+            'c' => 'X',
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new Equals(1))->ifNoneOf(['b', 'c'], 2),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => 1,
+            'b' => 'X',
+            'c' => 'X',
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new Equals(1))->ifNoneOf(['b', 'c'], 2),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => 2,
             'b' => 'X',
             'c' => 'X',
         ],
         false,
+    ],
+    [
+        [
+            'a' => (new Equals(1))->ifNoneOf(['b', 'c'], 2),
+            'b' => 'nullable',
+            'c' => 'nullable',
+        ],
+        [
+            'a' => 1,
+            'b' => 'X',
+            'c' => 'X',
+        ],
+        true,
     ],
 ]);

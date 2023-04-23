@@ -6,7 +6,7 @@ use Closure;
 use Sedlatschek\ConditionalEqualsValidation\Condition;
 use Sedlatschek\ConditionalEqualsValidation\ConditionalRule;
 
-class Equals extends ConditionalRule
+class NotEquals extends ConditionalRule
 {
     /**
      * Run the validation rule.
@@ -17,7 +17,7 @@ class Equals extends ConditionalRule
 
         $request = request();
 
-        if ($value !== $this->value) {
+        if ($value === $this->value) {
             if (count($this->conditions) === 0) {
                 $fail('fails even without condition');
             } else {

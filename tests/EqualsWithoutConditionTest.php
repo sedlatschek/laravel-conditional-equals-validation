@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Validator;
 use Sedlatschek\ConditionalEqualsValidation\Rules\Equals;
 
-it('works without condition', function (array $rules, array $data, bool $expected) {
+it('validates "equals" without conditions', function (array $rules, array $data, bool $expected) {
     $validator = Validator::make($data, $rules);
     expect($validator->passes())->toBe($expected);
 })->with([

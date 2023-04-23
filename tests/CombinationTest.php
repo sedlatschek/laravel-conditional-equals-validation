@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Validator;
 use Sedlatschek\ConditionalEqualsValidation\Rules\Equals;
+use Sedlatschek\ConditionalEqualsValidation\Rules\NotEquals;
 
 it('works when multiple conditions are combined', function (array $rules, array $data, bool $expected) {
     $this->post('/test', $data);
@@ -207,6 +208,44 @@ it('works when multiple conditions are combined', function (array $rules, array 
             'b' => 'X',
             'c' => 'Y',
             'd' => 'Y',
+        ],
+        true,
+    ],
+    [
+        [
+            'a' => (new NotEquals(1))->if('b', 'Y')->ifNoneOf(['c', 'd'], 'X')->ifAllOf(['e', 'f'], 1),
+            'b' => 'nullable',
+            'c' => 'nullable',
+            'd' => 'nullable',
+            'e' => 'nullable',
+            'f' => 'nullable',
+        ],
+        [
+            'a' => 1,
+            'b' => 'Y',
+            'c' => 'Y',
+            'd' => 'Y',
+            'e' => 1,
+            'f' => 1
+        ],
+        false,
+    ],
+    [
+        [
+            'a' => (new NotEquals(1))->if('b', 'Y')->ifNoneOf(['c', 'd'], 'X')->ifAllOf(['e', 'f'], 1),
+            'b' => 'nullable',
+            'c' => 'nullable',
+            'd' => 'nullable',
+            'e' => 'nullable',
+            'f' => 'nullable',
+        ],
+        [
+            'a' => 2,
+            'b' => 'Y',
+            'c' => 'Y',
+            'd' => 'Y',
+            'e' => 1,
+            'f' => 1
         ],
         true,
     ],
