@@ -4,32 +4,34 @@ namespace Sedlatschek\ConditionalEqualsValidation\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Sedlatschek\ConditionalEqualsValidation\Condition;
 use Sedlatschek\ConditionalEqualsValidation\ConditionAll;
 use Sedlatschek\ConditionalEqualsValidation\ConditionAny;
 use Sedlatschek\ConditionalEqualsValidation\ConditionNone;
+use Sedlatschek\ConditionalEqualsValidation\InvalidRuleDefinitionException;
 
 class Equals implements ValidationRule
 {
     /**
-     * @var \Illuminate\Support\Collection<\Sedlatschek\BooleanValidation\Condition>
+     * @var \Illuminate\Support\Collection<\Sedlatschek\ConditionalEqualsValidation\Condition>
      */
     protected Collection $conditions;
 
-    protected $mustBe;
+    protected mixed $mustBe;
 
-    public function __construct($value)
+    public function __construct(mixed $value)
     {
         $this->conditions = collect();
         $this->mustBe = $value;
     }
 
     /**
+     * Any one of the given `parameters` must have the given `equals` for the rule to apply.
+     *
      * @param  string[]  $parameters
      */
-    public function ifAnyOf(array $parameters, $equals): Equals
+    public function ifAnyOf(array $parameters, mixed $equals): Equals
     {
         $this->conditions->push(new ConditionAny($parameters, $equals));
 
@@ -37,9 +39,11 @@ class Equals implements ValidationRule
     }
 
     /**
+     * All of the given `parameters` must have the given `equals` for the rule to apply.
+     *
      * @param  string[]  $parameters
      */
-    public function ifAllOf(array $parameters, $equals): Equals
+    public function ifAllOf(array $parameters, mixed $equals): Equals
     {
         $this->conditions->push(new ConditionAll($parameters, $equals));
 
@@ -47,63 +51,56 @@ class Equals implements ValidationRule
     }
 
     /**
+     * All of the given `parameters` must be different from the given `equals` for the rule to apply.
+     *
      * @param  string[]  $parameters
      */
-    public function ifNoneOf(array $parameters, $equals): Equals
+    public function ifNoneOf(array $parameters, mixed $equals): Equals
     {
         $this->conditions->push(new ConditionNone($parameters, $equals));
 
         return $this;
     }
 
-    public function if(string $parameter, $equals): Equals
+    /**
+     * The given `parameter` must have the given `equals` for the rule to apply.
+     */
+    public function if(string $parameter, mixed $equals): Equals
     {
         return $this->ifAnyOf([$parameter], $equals);
     }
 
-    public function ifNot(string $parameter, $equals): Equals
+    /**
+     * The given `parameter` must be different from the given `equals` for the rule to apply.
+     */
+    public function ifNot(string $parameter, mixed $equals): Equals
     {
         return $this->ifNoneOf([$parameter], $equals);
     }
 
     /**
-     * @return  \Illuminate\Support\Collection<\Sedlatschek\BooleanValidation\AllCondition>
+     * Get the parameters of all conditions.
+     *
+     * @return \Illuminate\Support\Collection<string>
      */
-    protected function getAllConditions(): Collection
+    protected function getAllParameters(): Collection
     {
-        return $this->conditions->filter(
-            fn (Condition $condition) => get_class($condition) === ConditionAll::class,
-        );
+        return $this->conditions->map(fn (Condition $condition) => $condition->getParameters())
+            ->flatten();
     }
 
     /**
-     * @return  \Illuminate\Support\Collection<\Sedlatschek\BooleanValidation\AllCondition>
+     * Check if a parameter references itself.
+     *
+     * @throws \Sedlatschek\ConditionalEqualsValidation\InvalidRuleDefinitionException
      */
-    protected function getAnyConditions(): Collection
+    protected function checkForSelfReference(string $attribute): void
     {
-        return $this->conditions->filter(
-            fn (Condition $condition) => get_class($condition) === ConditionAny::class,
-        );
-    }
+        $parameters = $this->getAllParameters();
 
-    /**
-     * @return  \Illuminate\Support\Collection<\Sedlatschek\BooleanValidation\AllCondition>
-     */
-    protected function getNoneConditions(): Collection
-    {
-        return $this->conditions->filter(
-            fn (Condition $condition) => get_class($condition) === ConditionNone::class,
-        );
-    }
-
-    /**
-     * @param  \Illuminate\Support\Collection<\Sedlatschek\BooleanValidation\AllCondition>  $collection
-     */
-    protected function validateCollection(Collection $collection, Request $request): bool
-    {
-        return $collection->every(
-            fn (Condition $condition) => $condition->allowsDifferentValue($request)
-        );
+        if ($parameters->contains($attribute)) {
+            throw new InvalidRuleDefinitionException("{$attribute} can't be used to validate {$attribute}");
+        }
     }
 
     /**
@@ -111,17 +108,21 @@ class Equals implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        $this->checkForSelfReference($attribute);
+
         $request = request();
 
         if ($value !== $this->mustBe) {
             if (count($this->conditions) === 0) {
                 $fail('fails even without condition');
-            } elseif (! $this->validateCollection($this->getAllConditions(), $request)) {
-                $fail('all failed');
-            } elseif (! $this->validateCollection($this->getAnyConditions(), $request)) {
-                $fail('any failed');
-            } elseif (! $this->validateCollection($this->getNoneConditions(), $request)) {
-                $fail('none failed');
+            } else {
+                $failing = $this->conditions->filter(
+                    fn (Condition $condition) => ! $condition->allowsDifferentValue($request)
+                );
+
+                if (count($this->conditions) === count($failing)) {
+                    $fail('x');
+                }
             }
         }
     }

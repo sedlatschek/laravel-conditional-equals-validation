@@ -12,12 +12,22 @@ abstract class Condition
      */
     protected Collection $parameters;
 
-    protected $equals;
+    protected mixed $equals;
 
-    public function __construct(array $parameters, $equals)
+    public function __construct(array $parameters, mixed $equals)
     {
         $this->parameters = collect($parameters);
         $this->equals = $equals;
+    }
+
+    /**
+     * Get all the parameters the condition uses for comparison.
+     *
+     * @return \Illuminate\Support\Collection<string>
+     */
+    public function getParameters(): Collection
+    {
+        return $this->parameters;
     }
 
     /**

@@ -1,10 +1,13 @@
 {
     "name": "sedlatschek/laravel-conditional-equals-validation",
-    "description": "additional rule to for conditional equals validation ",
+    "description": "Additional rules to for conditional equals validation",
     "keywords": [
         "sedlatschek",
         "laravel",
-        "validation"
+        "validation",
+        "equal",
+        "equals",
+        "if"
     ],
     "homepage": "https://github.com/sedlatschek/laravel-conditional-equals-validation",
     "license": "MIT",
@@ -12,7 +15,7 @@
         {
             "name": "Simon Sedlatschek",
             "email": "code@sedlatschek.com",
-            "role": "Developer"
+            "role": "Maintainer"
         }
     ],
     "require": {
