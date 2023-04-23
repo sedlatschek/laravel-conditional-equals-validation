@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Sedlatschek\ConditionalEqualsValidation\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class ConditionalEqualsValidationCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laravel-conditional-equals-validation';
 
     public $description = 'My command';
 
