@@ -15,16 +15,18 @@ class ConditionAny extends Condition
 
     public function message(): string
     {
+        $translatedValue = $this->translateValue($this->value);
+
         if (count($this->parameters) === 1) {
             return __('conditional-equals-validation::messages.if', [
                 'parameter' => $this->parameters[0],
-                'value' => $this->value,
+                'value' => $translatedValue,
             ]);
         }
 
         return __('conditional-equals-validation::messages.if_any_of', [
             'parameters' => $this->serializeParameters(),
-            'value' => $this->value,
+            'value' => $translatedValue,
         ]);
     }
 }

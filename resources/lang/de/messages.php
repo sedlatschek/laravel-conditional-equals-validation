@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'null' => 'Leer',
+    'true' => 'Wahr',
+    'false' => 'Falsch',
     'and' => 'und',
     'equals' => ':attribute muss den Wert :value haben',
     'not_equals' => ':attribute darf nicht den Wert :value haben',

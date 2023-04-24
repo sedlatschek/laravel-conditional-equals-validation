@@ -4,9 +4,12 @@ namespace Sedlatschek\ConditionalEqualsValidation;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Sedlatschek\ConditionalEqualsValidation\Traits\HasTypeAwareValueTranslation;
 
 abstract class Condition
 {
+    use HasTypeAwareValueTranslation;
+
     /**
      * @var \Illuminate\Support\Collection<string>
      */

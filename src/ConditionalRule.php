@@ -6,10 +6,13 @@ use Closure;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Sedlatschek\ConditionalEqualsValidation\Traits\HasTypeAwareValueTranslation;
 
 /** @phpstan-ignore-next-line */
 class ConditionalRule implements Rule
 {
+    use HasTypeAwareValueTranslation;
+
     /**
      * @var \Illuminate\Support\Collection<\Sedlatschek\ConditionalEqualsValidation\Condition>
      */
@@ -151,7 +154,7 @@ class ConditionalRule implements Rule
 
         return __('conditional-equals-validation::messages.'.$this->getName(), [
             'attribute' => $attribute,
-            'value' => $this->value,
+            'value' => $this->translateValue($this->value),
         ]).$append;
     }
 

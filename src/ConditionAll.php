@@ -17,7 +17,7 @@ class ConditionAll extends Condition
     {
         return __('conditional-equals-validation::messages.if_all_of', [
             'parameters' => $this->serializeParameters(),
-            'value' => $this->value,
+            'value' => $this->translateValue($this->value),
         ]);
     }
 }

@@ -15,16 +15,18 @@ class ConditionNone extends Condition
 
     public function message(): string
     {
+        $translatedValue = $this->translateValue($this->value);
+
         if (count($this->parameters) === 1) {
             return __('conditional-equals-validation::messages.if_not', [
                 'parameter' => $this->parameters[0],
-                'value' => $this->value,
+                'value' => $translatedValue,
             ]);
         }
 
         return __('conditional-equals-validation::messages.if_none_of', [
             'parameters' => $this->serializeParameters(),
-            'value' => $this->value,
+            'value' => $translatedValue,
         ]);
     }
 }
