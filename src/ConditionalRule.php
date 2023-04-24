@@ -3,11 +3,12 @@
 namespace Sedlatschek\ConditionalEqualsValidation;
 
 use Closure;
-use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class ConditionalRule implements ValidationRule
+/** @phpstan-ignore-next-line */
+class ConditionalRule implements Rule
 {
     /**
      * @var \Illuminate\Support\Collection<\Sedlatschek\ConditionalEqualsValidation\Condition>
@@ -152,5 +153,35 @@ class ConditionalRule implements ValidationRule
             'attribute' => $attribute,
             'value' => $this->value,
         ]).$append;
+    }
+
+    /**
+     * We only have this for Laravel 9 compatibility.
+     * The class itself already works with Laravel 10 through the `validate` function.
+     */
+    protected ?string $tmpMessage = null;
+
+    /**
+     * We only have this for Laravel 9 compatibility.
+     * The class itself already works with Laravel 10 through the `validate` function.
+     *
+     * @deprecated
+     */
+    public function passes($attribute, $value)
+    {
+        $this->validate($attribute, $value, fn (string $message) => $this->tmpMessage = $message);
+
+        return ! isset($this->tmpMessage);
+    }
+
+    /**
+     * We only have this for Laravel 9 compatibility.
+     * The class itself already works with Laravel 10 through the `validate` function.
+     *
+     * @deprecated
+     */
+    public function message()
+    {
+        return $this->tmpMessage;
     }
 }
