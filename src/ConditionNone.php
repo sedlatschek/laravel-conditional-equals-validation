@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 
 class ConditionNone extends Condition
 {
-     public function validate(Request $request): bool
-     {
+    public function validate(Request $request): bool
+    {
         return $this->parameters->some(
             fn ($p) => $request->has($p) && $request->{$p} === $this->value
         );
@@ -19,7 +19,7 @@ class ConditionNone extends Condition
 
         if (count($this->parameters) === 1) {
             return __('conditional-equals-validation::messages.if_not', [
-                'parameter' => $this->parameters[0],
+                'parameter' => $this->serializeParameters(),
                 'value' => $translatedValue,
             ]);
         }

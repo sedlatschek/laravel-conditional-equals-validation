@@ -4,6 +4,7 @@ namespace Sedlatschek\ConditionalEqualsValidation;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Lang;
 use Sedlatschek\ConditionalEqualsValidation\Traits\HasTypeAwareValueTranslation;
 
 abstract class Condition
@@ -38,7 +39,9 @@ abstract class Condition
      */
     protected function serializeParameters(): string
     {
-        $uniqueParameters = $this->parameters->unique()->values();
+        $uniqueParameters = $this->parameters->unique()->values()->map(function ($key) {
+            return Lang::get('validation.attributes')[$key] ?? $key;
+        });
 
         if (count($uniqueParameters) <= 0) {
             return '';

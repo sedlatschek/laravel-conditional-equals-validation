@@ -19,7 +19,7 @@ class ConditionAny extends Condition
 
         if (count($this->parameters) === 1) {
             return __('conditional-equals-validation::messages.if', [
-                'parameter' => $this->parameters[0],
+                'parameter' => $this->serializeParameters(),
                 'value' => $translatedValue,
             ]);
         }
