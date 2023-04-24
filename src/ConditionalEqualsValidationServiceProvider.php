@@ -2,18 +2,12 @@
 
 namespace Sedlatschek\ConditionalEqualsValidation;
 
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Illuminate\Support\ServiceProvider;
 
-class ConditionalEqualsValidationServiceProvider extends PackageServiceProvider
+class ConditionalEqualsValidationServiceProvider extends ServiceProvider
 {
-    public function configurePackage(Package $package): void
+    public function boot()
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
-        $package->name('conditional-equals-validation');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang/', 'conditional-equals-validation');
     }
 }

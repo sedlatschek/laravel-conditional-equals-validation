@@ -12,12 +12,12 @@ abstract class Condition
      */
     protected Collection $parameters;
 
-    protected mixed $equals;
+    protected mixed $value;
 
-    public function __construct(array $parameters, mixed $equals)
+    public function __construct(array $parameters, mixed $value)
     {
         $this->parameters = collect($parameters);
-        $this->equals = $equals;
+        $this->value = $value;
     }
 
     /**
@@ -30,5 +30,30 @@ abstract class Condition
         return $this->parameters;
     }
 
+    /**
+     * Serialize parameters to use "," and "and".
+     */
+    protected function serializeParameters(): string
+    {
+        $uniqueParameters = $this->parameters->unique()->values();
+
+        if (count($uniqueParameters) <= 0) {
+            return '';
+        }
+
+        if (count($uniqueParameters) === 1) {
+            return $uniqueParameters[0];
+        }
+
+        return $uniqueParameters->slice(0, count($uniqueParameters) - 1)
+            ->join(', ')
+            .' '
+            .__('conditional-equals-validation::messages.and')
+            .' '
+            .$uniqueParameters->last();
+    }
+
     abstract public function validate(Request $request): bool;
+
+    abstract public function message(): string;
 }

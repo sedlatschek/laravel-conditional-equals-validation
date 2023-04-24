@@ -16,7 +16,7 @@ $request->validate([
 ]);
 ```
 
-See [Usage](#usage) for all possibilites!
+See [Usage](#usage) for all possibilites! Also know that the native method `Rule::when` may be a better alternative to this package.
 
 ## Installation
 

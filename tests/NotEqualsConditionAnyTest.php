@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
-use Sedlatschek\ConditionalEqualsValidation\Rules\Equals;
 use Sedlatschek\ConditionalEqualsValidation\Rules\NotEquals;
 
 it('validates "not equals" with only "any" conditions', function (array $rules, array $data, bool $expected) {
@@ -26,7 +25,7 @@ it('validates "not equals" with only "any" conditions', function (array $rules, 
             'b' => 'nullable',
         ],
         [
-            'a' => "1",
+            'a' => '1',
             'b' => 'X',
         ],
         true,

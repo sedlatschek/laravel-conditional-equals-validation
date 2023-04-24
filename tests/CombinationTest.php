@@ -226,7 +226,7 @@ it('works when multiple conditions are combined', function (array $rules, array 
             'c' => 'Y',
             'd' => 'Y',
             'e' => 1,
-            'f' => 1
+            'f' => 1,
         ],
         false,
     ],
@@ -245,7 +245,7 @@ it('works when multiple conditions are combined', function (array $rules, array 
             'c' => 'Y',
             'd' => 'Y',
             'e' => 1,
-            'f' => 1
+            'f' => 1,
         ],
         true,
     ],

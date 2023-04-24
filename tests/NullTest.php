@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
-use PhpParser\Node\Expr\BinaryOp\NotEqual;
 use Sedlatschek\ConditionalEqualsValidation\Rules\Equals;
 use Sedlatschek\ConditionalEqualsValidation\Rules\NotEquals;
 

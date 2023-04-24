@@ -5,11 +5,7 @@ namespace Sedlatschek\ConditionalEqualsValidation;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Collection;
-use Sedlatschek\ConditionalEqualsValidation\Condition;
-use Sedlatschek\ConditionalEqualsValidation\ConditionAll;
-use Sedlatschek\ConditionalEqualsValidation\ConditionAny;
-use Sedlatschek\ConditionalEqualsValidation\ConditionNone;
-use Sedlatschek\ConditionalEqualsValidation\InvalidRuleDefinitionException;
+use Illuminate\Support\Str;
 
 class ConditionalRule implements ValidationRule
 {
@@ -24,6 +20,14 @@ class ConditionalRule implements ValidationRule
     {
         $this->conditions = collect();
         $this->value = $value;
+    }
+
+    /**
+     * The name of the rule.
+     */
+    protected function getName(): string
+    {
+        return Str::slug(Str::afterLast(get_class($this), '\\'), '_');
     }
 
     /**
@@ -104,6 +108,14 @@ class ConditionalRule implements ValidationRule
     }
 
     /**
+     * Determine whether or not the conditions need to be checked using the rule value and the actual value.
+     */
+    protected function needsToHaveConditionsChecked(mixed $ruleValue, mixed $actualValue): bool
+    {
+        return $ruleValue !== $actualValue;
+    }
+
+    /**
      * Run the validation rule.
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
@@ -112,18 +124,33 @@ class ConditionalRule implements ValidationRule
 
         $request = request();
 
-        if ($value !== $this->value) {
+        if ($this->needsToHaveConditionsChecked($this->value, $value)) {
             if (count($this->conditions) === 0) {
-                $fail('fails even without condition');
+                $fail($this->getMessageForConditions($attribute, $value));
             } else {
                 $failing = $this->conditions->filter(
                     fn (Condition $condition) => ! $condition->validate($request)
                 );
 
                 if (count($this->conditions) === count($failing)) {
-                    $fail('x');
+                    $fail($this->getMessageForConditions($attribute, $value, $this->conditions));
                 }
             }
         }
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<\Sedlatschek\ConditionalEqualsValidation\Condition>|null  $conditions
+     */
+    protected function getMessageForConditions(string $attribute, mixed $value, Collection|null $conditions = null): string
+    {
+        $append = isset($conditions) && (count($conditions) > 0)
+            ? ' '.$conditions->map(fn (Condition $condition) => $condition->message())->join(' and ')
+            : '';
+
+        return __('conditional-equals-validation::messages.'.$this->getName(), [
+            'attribute' => $attribute,
+            'value' => $this->value,
+        ]).$append;
     }
 }
