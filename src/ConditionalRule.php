@@ -2,7 +2,6 @@
 
 namespace Sedlatschek\ConditionalEqualsValidation;
 
-use Closure;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -122,7 +121,7 @@ class ConditionalRule implements Rule
     /**
      * Run the validation rule.
      */
-    public function validate(string $attribute, mixed $value, Closure $fail): void
+    public function validate(string $attribute, mixed $value, \Closure $fail): void
     {
         $this->checkForSelfReference($attribute);
 
@@ -130,14 +129,14 @@ class ConditionalRule implements Rule
 
         if ($this->needsToHaveConditionsChecked($this->value, $value)) {
             if (count($this->conditions) === 0) {
-                $fail($this->getMessageForConditions($attribute, $value));
+                $fail($this->getMessageForConditions($attribute));
             } else {
                 $failing = $this->conditions->filter(
                     fn (Condition $condition) => ! $condition->validate($request)
                 );
 
                 if (count($this->conditions) === count($failing)) {
-                    $fail($this->getMessageForConditions($attribute, $value, $this->conditions));
+                    $fail($this->getMessageForConditions($attribute, $this->conditions));
                 }
             }
         }
@@ -146,35 +145,41 @@ class ConditionalRule implements Rule
     /**
      * @param  \Illuminate\Support\Collection<\Sedlatschek\ConditionalEqualsValidation\Condition>|null  $conditions
      */
-    protected function getMessageForConditions(string $attribute, mixed $value, Collection|null $conditions = null): string
+    protected function getMessageForConditions(string $attribute, Collection|null $conditions = null): string
     {
-        $append = isset($conditions) && (count($conditions) > 0)
-            ? ' '.$conditions->map(fn (Condition $condition) => $condition->message())->join(' and ')
-            : '';
-
         return __('conditional-equals-validation::messages.'.$this->getName(), [
             'attribute' => $attribute,
             'value' => $this->translateValue($this->value),
-        ]).$append;
+        ]).$this->getMessageConditionAppendix($conditions);
     }
 
     /**
-     * We only have this for Laravel 9 compatibility.
-     * The class itself already works with Laravel 10 through the `validate` function.
+     * @param  \Illuminate\Support\Collection<\Sedlatschek\ConditionalEqualsValidation\Condition>|null  $conditions
      */
-    protected ?string $tmpMessage = null;
+    protected function getMessageConditionAppendix(Collection|null $conditions = null): string
+    {
+        return isset($conditions) && (count($conditions) > 0)
+            ? ' '.$conditions->map(fn (Condition $condition) => $condition->message())->join(' and ')
+            : '';
+    }
 
     /**
      * We only have this for Laravel 9 compatibility.
      * The class itself already works with Laravel 10 through the `validate` function.
      *
      * @deprecated
+     *
+     * @param  mixed  $attribute
+     * @param  mixed  $value
      */
     public function passes($attribute, $value)
     {
-        $this->validate($attribute, $value, fn (string $message) => $this->tmpMessage = $message);
+        $result = true;
+        $this->validate($attribute, $value, function () use (&$result) {
+            $result = false;
+        });
 
-        return ! isset($this->tmpMessage);
+        return $result;
     }
 
     /**
@@ -185,6 +190,8 @@ class ConditionalRule implements Rule
      */
     public function message()
     {
-        return $this->tmpMessage;
+        return __('conditional-equals-validation::messages.'.$this->getName(), [
+            'value' => $this->translateValue($this->value),
+        ]).$this->getMessageConditionAppendix($this->conditions);
     }
 }
