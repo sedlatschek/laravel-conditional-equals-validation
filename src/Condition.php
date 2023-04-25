@@ -40,7 +40,11 @@ abstract class Condition
     protected function serializeParameters(): string
     {
         $uniqueParameters = $this->parameters->unique()->values()->map(function ($key) {
-            return Lang::get('validation.attributes')[$key] ?? $key;
+            $transKey = "validation.attributes.$key";
+
+            return Lang::has($transKey)
+                ? Lang::get($transKey)
+                : $key;
         });
 
         if (count($uniqueParameters) <= 0) {
