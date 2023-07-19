@@ -158,8 +158,10 @@ class ConditionalRule implements Rule
      */
     protected function getMessageConditionAppendix(Collection|null $conditions = null): string
     {
+        $and = __('conditional-equals-validation::messages.and');
+
         return isset($conditions) && (count($conditions) > 0)
-            ? ' '.$conditions->map(fn (Condition $condition) => $condition->message())->join(' and ')
+            ? ' '.$conditions->map(fn (Condition $condition) => $condition->message())->join(" $and ")
             : '';
     }
 
